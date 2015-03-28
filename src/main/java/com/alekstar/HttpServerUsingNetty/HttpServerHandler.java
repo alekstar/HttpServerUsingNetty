@@ -19,19 +19,19 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
             'o', 'r', 'l', 'd' };
 
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) {
-        ctx.flush();
+    public void channelReadComplete(ChannelHandlerContext context) {
+        context.flush();
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        if (msg instanceof HttpRequest) {
-            HttpRequest req = (HttpRequest) msg;
+    public void channelRead(ChannelHandlerContext context, Object message) {
+        if (message instanceof HttpRequest) {
+            HttpRequest request = (HttpRequest) message;
 
-            if (HttpHeaders.is100ContinueExpected(req)) {
-                ctx.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
+            if (HttpHeaders.is100ContinueExpected(request)) {
+                context.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
             }
-            boolean keepAlive = HttpHeaders.isKeepAlive(req);
+            boolean keepAlive = HttpHeaders.isKeepAlive(request);
             FullHttpResponse response =
                     new DefaultFullHttpResponse(HTTP_1_1, OK,
                             Unpooled.wrappedBuffer(CONTENT));
@@ -40,17 +40,17 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
                     response.content().readableBytes());
 
             if (!keepAlive) {
-                ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+                context.write(response).addListener(ChannelFutureListener.CLOSE);
             } else {
                 response.headers().set(CONNECTION, Values.KEEP_ALIVE);
-                ctx.write(response);
+                context.write(response);
             }
         }
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    public void exceptionCaught(ChannelHandlerContext context, Throwable cause) {
         cause.printStackTrace();
-        ctx.close();
+        context.close();
     }
 }
