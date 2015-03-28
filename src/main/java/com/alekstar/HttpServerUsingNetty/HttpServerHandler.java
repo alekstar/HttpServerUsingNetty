@@ -45,11 +45,18 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    private UriProcessor defineUriProcessor(String uri) {
+        if (uri.equals("/hello")) {
+            return new HelloUriProcessor();
+        } else {
+            return new NotFoundUriProcessor();
+        }
+    }
+
     private FullHttpResponse defineResponse(String uri) {
-        FullHttpResponse response =
-                new DefaultFullHttpResponse(HTTP_1_1, OK,
-                        Unpooled.wrappedBuffer("Hello World".getBytes()));
-        return response;
+        UriProcessor processor = defineUriProcessor(uri);
+        processor.process();
+        return processor.getResponse();
     }
 
     @Override
