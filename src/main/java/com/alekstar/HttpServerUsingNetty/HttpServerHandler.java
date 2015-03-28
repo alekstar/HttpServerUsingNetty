@@ -15,8 +15,6 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.*;
 
 public class HttpServerHandler extends ChannelInboundHandlerAdapter {
-    private static final byte[] CONTENT = { 'H', 'e', 'l', 'l', 'o', ' ', 'W',
-            'o', 'r', 'l', 'd' };
 
     @Override
     public void channelReadComplete(ChannelHandlerContext context) {
@@ -32,20 +30,26 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
                 context.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
             }
             boolean keepAlive = HttpHeaders.isKeepAlive(request);
-            FullHttpResponse response =
-                    new DefaultFullHttpResponse(HTTP_1_1, OK,
-                            Unpooled.wrappedBuffer(CONTENT));
+            FullHttpResponse response = defineResponse(request.getUri());
             response.headers().set(CONTENT_TYPE, "text/html");
             response.headers().set(CONTENT_LENGTH,
                     response.content().readableBytes());
 
             if (!keepAlive) {
-                context.write(response).addListener(ChannelFutureListener.CLOSE);
+                context.write(response)
+                        .addListener(ChannelFutureListener.CLOSE);
             } else {
                 response.headers().set(CONNECTION, Values.KEEP_ALIVE);
                 context.write(response);
             }
         }
+    }
+
+    private FullHttpResponse defineResponse(String uri) {
+        FullHttpResponse response =
+                new DefaultFullHttpResponse(HTTP_1_1, OK,
+                        Unpooled.wrappedBuffer("Hello World".getBytes()));
+        return response;
     }
 
     @Override
