@@ -13,6 +13,19 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.*;
 
 public class HttpServerHandler extends ChannelInboundHandlerAdapter {
+    private int requestsAmount;
+
+    public HttpServerHandler() {
+        this.requestsAmount = 0;
+    }
+
+    public int getRequestsAmount() {
+        return this.requestsAmount;
+    }
+
+    private void incrementRequestsAmount() {
+        this.requestsAmount++;
+    }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext context) {
@@ -22,6 +35,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext context, Object message) {
         if (message instanceof HttpRequest) {
+            incrementRequestsAmount();
             HttpRequest request = (HttpRequest) message;
 
             if (HttpHeaders.is100ContinueExpected(request)) {
@@ -48,6 +62,8 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
             return new HelloUriProcessor();
         } else if (isRedirectUri(uri)) {
             return new RedirectUriProcessor(uri);
+        } else if (isStatusUri(uri)) {
+            return new StatusUriProcessor(getRequestsAmount());
         } else {
             return new NotFoundUriProcessor();
         }
@@ -63,6 +79,10 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         }
         return uri.substring(0, "/redirect?url=".length()).equals(
                 "/redirect?url=");
+    }
+
+    private boolean isStatusUri(String uri) {
+        return uri.equals("/status");
     }
 
     private FullHttpResponse defineResponse(String uri) {
