@@ -1,6 +1,5 @@
 package com.alekstar.HttpServerUsingNetty;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -8,7 +7,6 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
-
 import static io.netty.handler.codec.http.HttpHeaders.Names.*;
 import static io.netty.handler.codec.http.HttpHeaders.Values;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
@@ -46,11 +44,25 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     private UriProcessor defineUriProcessor(String uri) {
-        if (uri.equals("/hello")) {
+        if (isHelloUri(uri)) {
             return new HelloUriProcessor();
+        } else if (isRedirectUri(uri)) {
+            return new RedirectUriProcessor(uri);
         } else {
             return new NotFoundUriProcessor();
         }
+    }
+
+    private boolean isHelloUri(String uri) {
+        return uri.equals("/hello");
+    }
+
+    private boolean isRedirectUri(String uri) {
+        if (uri.length() < "/redirect?url=".length()) {
+            return false;
+        }
+        return uri.substring(0, "/redirect?url=".length()).equals(
+                "/redirect?url=");
     }
 
     private FullHttpResponse defineResponse(String uri) {
