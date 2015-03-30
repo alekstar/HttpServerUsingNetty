@@ -7,23 +7,27 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 
 public class StatusUriProcessor implements UriProcessor {
-    int requestsAmount;
+    RequestCounter requestCounter;
     FullHttpResponse response;
 
-    public StatusUriProcessor(int requestsAmount) {
-        setRequestsAmount(requestsAmount);
+    public StatusUriProcessor(RequestCounter requestCounter) {
+        setRequestCounter(requestCounter);
+    }
+
+    private RequestCounter getRequestCounter() {
+        return requestCounter;
+    }
+
+    private void setRequestCounter(RequestCounter requestCounter) {
+        if (requestCounter == null) {
+            throw new IllegalArgumentException(
+                    "Argument requestCounter is null.");
+        }
+        this.requestCounter = requestCounter;
     }
 
     public void setResponse(FullHttpResponse response) {
         this.response = response;
-    }
-
-    private int getRequestsAmount() {
-        return requestsAmount;
-    }
-
-    private void setRequestsAmount(int requestsAmount) {
-        this.requestsAmount = requestsAmount;
     }
 
     public FullHttpResponse getResponse() {
@@ -39,6 +43,9 @@ public class StatusUriProcessor implements UriProcessor {
     private String defineResponseString() {
         return "<!DOCTYPE HTML>" + "<html lang=\"en-US\">" + "<head>"
                 + "</head>" + "<body>Overall amount of requests: "
-                + getRequestsAmount() + "</body>" + "</html>";
+                + getRequestCounter().getOverallRequestAmount() + "<br>"
+                + "Request from unique IPs: "
+                + getRequestCounter().getUniqueIpRequestsAmount() + "</body>"
+                + "</html>";
     }
 }

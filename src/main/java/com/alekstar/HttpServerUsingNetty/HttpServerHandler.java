@@ -13,18 +13,18 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.*;
 
 public class HttpServerHandler extends ChannelInboundHandlerAdapter {
-    private int requestsAmount;
+    private RequestCounter requestCounter;
 
-    public HttpServerHandler() {
-        this.requestsAmount = 0;
+    public HttpServerHandler(RequestCounter requestCounter) {
+        if (requestCounter == null) {
+            throw new IllegalArgumentException(
+                    "Argument requestCounter is null.");
+        }
+        this.requestCounter = requestCounter;
     }
 
-    public int getRequestsAmount() {
-        return this.requestsAmount;
-    }
-
-    private void incrementRequestsAmount() {
-        this.requestsAmount++;
+    private RequestCounter getRequestCounter() {
+        return requestCounter;
     }
 
     @Override
@@ -35,9 +35,10 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext context, Object message) {
         if (message instanceof HttpRequest) {
-            incrementRequestsAmount();
-            HttpRequest request = (HttpRequest) message;
 
+            HttpRequest request = (HttpRequest) message;
+            getRequestCounter().processSocketAddress(
+                    context.channel().remoteAddress());
             if (HttpHeaders.is100ContinueExpected(request)) {
                 context.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
             }
@@ -63,7 +64,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         } else if (isRedirectUri(uri)) {
             return new RedirectUriProcessor(uri);
         } else if (isStatusUri(uri)) {
-            return new StatusUriProcessor(getRequestsAmount());
+            return new StatusUriProcessor(getRequestCounter());
         } else {
             return new NotFoundUriProcessor();
         }
