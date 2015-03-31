@@ -1,12 +1,13 @@
 package com.alekstar.HttpServerUsingNetty;
 
 import java.net.SocketAddress;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class RequestCounter {
     private int requestsAmount = 0;
-    private SortedSet<String> ips = new TreeSet<String>();
+    private SortedMap<String, RequestsPerEachIpCounter> requestsPerEachIpCounters =
+            new TreeMap<String, RequestsPerEachIpCounter>();
 
     public int getOverallRequestAmount() {
         return this.requestsAmount;
@@ -17,7 +18,11 @@ public class RequestCounter {
     }
 
     private void processIp(String ip) {
-        getIps().add(ip);
+        if (getRequestsPerEachIpCounters().containsKey(ip)) {
+            getRequestsPerEachIpCounters().get(ip).processIncomingRequest();
+        } else {
+            getRequestsPerEachIpCounters().put(ip, new RequestsPerEachIpCounter(ip));
+        }
         incrementRequestAmount();
     }
 
@@ -26,11 +31,11 @@ public class RequestCounter {
     }
 
     public int getUniqueIpRequestsAmount() {
-        return getIps().size();
+        return getRequestsPerEachIpCounters().size();
     }
 
-    private SortedSet<String> getIps() {
-        return this.ips;
+    private SortedMap<String, RequestsPerEachIpCounter> getRequestsPerEachIpCounters() {
+        return this.requestsPerEachIpCounters;
     }
 
     private String defineIpFromAddressString(String remoteAddressString) {
