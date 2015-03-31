@@ -21,7 +21,10 @@ public class RequestCounter {
         if (getRequestsPerEachIpCounters().containsKey(ip)) {
             getRequestsPerEachIpCounters().get(ip).processIncomingRequest();
         } else {
-            getRequestsPerEachIpCounters().put(ip, new RequestsPerEachIpCounter(ip));
+            RequestsPerEachIpCounter requestsPerEachIpCounter =
+                    new RequestsPerEachIpCounter(ip);
+            requestsPerEachIpCounter.processIncomingRequest();
+            getRequestsPerEachIpCounters().put(ip, requestsPerEachIpCounter);
         }
         incrementRequestAmount();
     }
@@ -75,5 +78,50 @@ public class RequestCounter {
 
     private boolean isBeginOfIpAddressCharacterExists(String remoteAddressString) {
         return defineBeginIndexOfIpAddressAtString(remoteAddressString) != -1;
+    }
+
+    public String generateHtmlTable() {
+        if (getUniqueIpRequestsAmount() == 0) {
+            return "";
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("<h3>Requests per each IP</h3>");
+        stringBuilder.append(defineHtmlTableBeginTag());
+        stringBuilder.append(defineHeadOfHtmlTable());
+        stringBuilder.append(defineHtmlTableRows());
+        stringBuilder.append(defineHtmlTableEndTag());
+
+        return stringBuilder.toString();
+    }
+
+    private String defineHtmlTableRows() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (RequestsPerEachIpCounter current : getRequestsPerEachIpCounters()
+                .values()) {
+            stringBuilder.append("<tr>");
+            stringBuilder.append("<td>");
+            stringBuilder.append(current.getIp());
+            stringBuilder.append("</td>");
+            stringBuilder.append("<td>");
+            stringBuilder.append(current.getRequestsAmount());
+            stringBuilder.append("</td>");
+            stringBuilder.append("<td>");
+            stringBuilder.append(current.getTimestampOfLastRequest());
+            stringBuilder.append("</td>");
+            stringBuilder.append("</tr>");
+        }
+        return stringBuilder.toString();
+    }
+
+    private String defineHtmlTableEndTag() {
+        return "</table>";
+    }
+
+    private String defineHtmlTableBeginTag() {
+        return "<table border = \"1\">";
+    }
+
+    private String defineHeadOfHtmlTable() {
+        return "<tr><th>IP</th><th>Requests amount</th><th>Last request time</th><tr>";
     }
 }

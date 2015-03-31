@@ -41,11 +41,12 @@ public class StatusUriProcessor implements UriProcessor {
     }
 
     private String defineResponseString() {
-        return "<!DOCTYPE HTML>" + "<html lang=\"en-US\">" + "<head>"
+        return "<!DOCTYPE HTML>" + "<meta charset=\"utf-8\">" + "<head>"
                 + "</head>" + "<body>Overall amount of requests: "
                 + getRequestCounter().getOverallRequestAmount() + "<br>"
                 + "Request from unique IPs: "
-                + getRequestCounter().getUniqueIpRequestsAmount() + "</body>"
+                + getRequestCounter().getUniqueIpRequestsAmount() + "<br>"
+                + "<br>" + getRequestCounter().generateHtmlTable() + "</body>"
                 + "</html>";
     }
 }
