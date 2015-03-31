@@ -5,11 +5,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class RequestCounter {
-    private int requestsAmount = 0;
+    private long requestsAmount = 0;
     private SortedMap<String, RequestsPerEachIpCounter> requestsPerEachIpCounters =
             new TreeMap<String, RequestsPerEachIpCounter>();
 
-    public int getOverallRequestAmount() {
+    public long getOverallRequestAmount() {
         return this.requestsAmount;
     }
 
