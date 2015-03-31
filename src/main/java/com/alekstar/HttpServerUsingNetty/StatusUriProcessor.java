@@ -9,9 +9,12 @@ import io.netty.handler.codec.http.HttpVersion;
 public class StatusUriProcessor implements UriProcessor {
     RequestCounter requestCounter;
     FullHttpResponse response;
+    UrlRedirectCounter redirectionsCounter;
 
-    public StatusUriProcessor(RequestCounter requestCounter) {
+    public StatusUriProcessor(RequestCounter requestCounter,
+            UrlRedirectCounter redirectionsCounter) {
         setRequestCounter(requestCounter);
+        setRedirectionsCounter(redirectionsCounter);
     }
 
     private RequestCounter getRequestCounter() {
@@ -26,7 +29,19 @@ public class StatusUriProcessor implements UriProcessor {
         this.requestCounter = requestCounter;
     }
 
-    public void setResponse(FullHttpResponse response) {
+    private UrlRedirectCounter getRedirectionsCounter() {
+        return redirectionsCounter;
+    }
+
+    private void setRedirectionsCounter(UrlRedirectCounter redirectionsCounter) {
+        if (redirectionsCounter == null) {
+            throw new IllegalArgumentException(
+                    "Argument redirectionsCounter is null");
+        }
+        this.redirectionsCounter = redirectionsCounter;
+    }
+
+    private void setResponse(FullHttpResponse response) {
         this.response = response;
     }
 
@@ -41,12 +56,16 @@ public class StatusUriProcessor implements UriProcessor {
     }
 
     private String defineResponseString() {
-        return "<!DOCTYPE HTML>" + "<meta charset=\"utf-8\">" + "<head>"
-                + "</head>" + "<body>Overall amount of requests: "
+        return "<!DOCTYPE HTML>"
+                + "<head>"
+                + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"
+                + "<title>Statistics</title>" + "</head>"
+                + "<body>Overall amount of requests: "
                 + getRequestCounter().getOverallRequestAmount() + "<br>"
                 + "Request from unique IPs: "
                 + getRequestCounter().getUniqueIpRequestsAmount() + "<br>"
-                + "<br>" + getRequestCounter().generateHtmlTable() + "</body>"
+                + "<br>" + getRequestCounter().generateHtmlTable() + "<br>"
+                + getRedirectionsCounter().generateHtmlTable() + "</body>"
                 + "</html>";
     }
 }

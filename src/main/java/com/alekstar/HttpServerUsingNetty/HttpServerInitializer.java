@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 
 public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
     RequestCounter requestCounter = new RequestCounter();
+    UrlRedirectCounter redirectionsCounter = new UrlRedirectCounter();
 
     public HttpServerInitializer() {
 
@@ -16,10 +17,15 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
         return requestCounter;
     }
 
+    private UrlRedirectCounter getRedirectionsCounter() {
+        return redirectionsCounter;
+    }
+
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         ChannelPipeline channelPipeline = socketChannel.pipeline();
         channelPipeline.addLast(new HttpServerCodec());
-        channelPipeline.addLast(new HttpServerHandler(getRequestCounter()));
+        channelPipeline.addLast(new HttpServerHandler(getRequestCounter(),
+                getRedirectionsCounter()));
     }
 }

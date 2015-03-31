@@ -9,9 +9,12 @@ import io.netty.handler.codec.http.HttpVersion;
 public class RedirectUriProcessor implements UriProcessor {
     private FullHttpResponse response;
     private String uri;
+    private UrlRedirectCounter redirectionsCounter;
 
-    public RedirectUriProcessor(String uri) {
+    public RedirectUriProcessor(String uri,
+            UrlRedirectCounter redirectionsCounter) {
         setUri(uri);
+        setRedirectionsCounter(redirectionsCounter);
     }
 
     private String getUri() {
@@ -23,6 +26,18 @@ public class RedirectUriProcessor implements UriProcessor {
             throw new IllegalArgumentException("Argument uri is null.");
         }
         this.uri = uri;
+    }
+
+    private UrlRedirectCounter getRedirectionsCounter() {
+        return redirectionsCounter;
+    }
+
+    private void setRedirectionsCounter(UrlRedirectCounter redirectionsCounter) {
+        if (redirectionsCounter == null) {
+            throw new IllegalArgumentException(
+                    "Argument redirectionsCounter is null.");
+        }
+        this.redirectionsCounter = redirectionsCounter;
     }
 
     private void setResponse(FullHttpResponse response) {
@@ -51,10 +66,12 @@ public class RedirectUriProcessor implements UriProcessor {
     }
 
     public void process() {
+        String redirectUrl = defineRedirectUrl(getUri());
         setResponse(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
                 HttpResponseStatus.MOVED_PERMANENTLY,
-                Unpooled.wrappedBuffer(defineResponseString(
-                        defineRedirectUrl(getUri())).getBytes())));
+                Unpooled.wrappedBuffer(defineResponseString(redirectUrl)
+                        .getBytes())));
+        getRedirectionsCounter().processUrl(redirectUrl);
     }
 
     private String defineResponseString(String redirectUrl) {

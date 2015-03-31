@@ -14,17 +14,29 @@ import static io.netty.handler.codec.http.HttpVersion.*;
 
 public class HttpServerHandler extends ChannelInboundHandlerAdapter {
     private RequestCounter requestCounter;
+    private UrlRedirectCounter redirectionsCounter;
 
-    public HttpServerHandler(RequestCounter requestCounter) {
+    public HttpServerHandler(RequestCounter requestCounter,
+            UrlRedirectCounter redirectionsCounter) {
         if (requestCounter == null) {
             throw new IllegalArgumentException(
                     "Argument requestCounter is null.");
         }
+
+        if (redirectionsCounter == null) {
+            throw new IllegalArgumentException(
+                    "Argument urlRedirectCounter is null.");
+        }
         this.requestCounter = requestCounter;
+        this.redirectionsCounter = redirectionsCounter;
     }
 
     private RequestCounter getRequestCounter() {
         return requestCounter;
+    }
+
+    private UrlRedirectCounter getRedirectionsCounter() {
+        return redirectionsCounter;
     }
 
     @Override
@@ -62,9 +74,10 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         if (isHelloUri(uri)) {
             return new HelloUriProcessor();
         } else if (isRedirectUri(uri)) {
-            return new RedirectUriProcessor(uri);
+            return new RedirectUriProcessor(uri, getRedirectionsCounter());
         } else if (isStatusUri(uri)) {
-            return new StatusUriProcessor(getRequestCounter());
+            return new StatusUriProcessor(getRequestCounter(),
+                    getRedirectionsCounter());
         } else {
             return new NotFoundUriProcessor();
         }
