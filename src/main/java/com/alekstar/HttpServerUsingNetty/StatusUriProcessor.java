@@ -56,16 +56,31 @@ public class StatusUriProcessor implements UriProcessor {
     }
 
     private String defineResponseString() {
-        return "<!DOCTYPE HTML>"
-                + "<head>"
-                + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"
-                + "<title>Statistics</title>" + "</head>"
-                + "<body>Overall amount of requests: "
-                + getRequestCounter().getOverallRequestAmount() + "<br>"
-                + "Request from unique IPs: "
-                + getRequestCounter().getUniqueIpRequestsAmount() + "<br>"
-                + "<br>" + getRequestCounter().generateHtmlTable() + "<br>"
-                + getRedirectionsCounter().generateHtmlTable() + "</body>"
-                + "</html>";
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(HtmlTags.defineDocumentTypeTag());
+        stringBuilder.append(HtmlTags.defineHtmlBeginTag());
+        stringBuilder.append(HtmlTags.defineHeadBeginTag());
+        stringBuilder.append(HtmlTags.defineDefaultMetaTag());
+        stringBuilder.append(HtmlTags.defineTitle(defineTitle()));
+        stringBuilder.append(HtmlTags.defineHeadEndTag());
+        stringBuilder.append(HtmlTags.defineBodyBeginTag());
+        stringBuilder.append("Overall amount of requests: ");
+        stringBuilder.append(getRequestCounter().getOverallRequestAmount());
+        stringBuilder.append(HtmlTags.defineBreakLineTag());
+        stringBuilder.append("Requests from unique IPs: ");
+        stringBuilder.append(getRequestCounter().getUniqueIpRequestsAmount());
+        stringBuilder.append(HtmlTags.defineBreakLineTag());
+        stringBuilder.append(HtmlTags.defineBreakLineTag());
+        stringBuilder.append(getRequestCounter().generateHtmlTable());
+        stringBuilder.append(HtmlTags.defineBreakLineTag());
+        stringBuilder.append(HtmlTags.defineBreakLineTag());
+        stringBuilder.append(getRedirectionsCounter().generateHtmlTable());
+        stringBuilder.append(HtmlTags.defineBodyEndTag());
+        stringBuilder.append(HtmlTags.defineHtmlEndTag());
+        return stringBuilder.toString();
+    }
+
+    private String defineTitle() {
+        return "Statistics";
     }
 }
