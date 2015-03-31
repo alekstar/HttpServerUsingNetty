@@ -85,43 +85,44 @@ public class RequestCounter {
             return "";
         }
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("<h3>Requests per each IP</h3>");
-        stringBuilder.append(defineHtmlTableBeginTag());
+        stringBuilder.append(HtmlTags.generateHeader(defineTableName()));
+        stringBuilder.append(HtmlTags.defineTableBeginTag());
         stringBuilder.append(defineHeadOfHtmlTable());
         stringBuilder.append(defineHtmlTableRows());
-        stringBuilder.append(defineHtmlTableEndTag());
-
+        stringBuilder.append(HtmlTags.defineTableEndTag());
         return stringBuilder.toString();
+    }
+
+    private String defineTableName() {
+        return "Requests for each IP";
     }
 
     private String defineHtmlTableRows() {
         StringBuilder stringBuilder = new StringBuilder();
         for (RequestsPerEachIpCounter current : getRequestsPerEachIpCounters()
                 .values()) {
-            stringBuilder.append("<tr>");
-            stringBuilder.append("<td>");
-            stringBuilder.append(current.getIp());
-            stringBuilder.append("</td>");
-            stringBuilder.append("<td>");
-            stringBuilder.append(current.getRequestsAmount());
-            stringBuilder.append("</td>");
-            stringBuilder.append("<td>");
-            stringBuilder.append(current.getTimestampOfLastRequest());
-            stringBuilder.append("</td>");
-            stringBuilder.append("</tr>");
+            stringBuilder.append(HtmlTags.defineTableRow(current.getIp(),
+                    new Long(current.getRequestsAmount()).toString(), current
+                            .getTimestampOfLastRequest().toString()));
         }
         return stringBuilder.toString();
     }
 
-    private String defineHtmlTableEndTag() {
-        return "</table>";
-    }
-
-    private String defineHtmlTableBeginTag() {
-        return "<table border = \"1\">";
-    }
-
     private String defineHeadOfHtmlTable() {
-        return "<tr><th>IP</th><th>Requests amount</th><th>Last request time</th><tr>";
+        return HtmlTags.defineHeadOfTable(defineIpColumnName(),
+                defineRequestsAmountColumnName(),
+                defineLastRequestTimeColumnName());
+    }
+
+    private String defineLastRequestTimeColumnName() {
+        return "Last request time";
+    }
+
+    private String defineRequestsAmountColumnName() {
+        return "Requests amount";
+    }
+
+    private String defineIpColumnName() {
+        return "IP";
     }
 }
