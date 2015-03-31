@@ -128,4 +128,12 @@ public class HtmlTags {
     public static String defineBreakLineTag() {
         return "<br>";
     }
+
+    public static String defineRedirectionMetaTag(String redirectionUrl) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("<meta http-equiv=\"refresh\" content=\"0; url=");
+        stringBuilder.append(redirectionUrl);
+        stringBuilder.append("\" />");
+        return stringBuilder.toString();
+    }
 }

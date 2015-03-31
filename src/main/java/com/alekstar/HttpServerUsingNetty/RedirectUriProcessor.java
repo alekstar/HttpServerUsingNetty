@@ -75,9 +75,15 @@ public class RedirectUriProcessor implements UriProcessor {
     }
 
     private String defineResponseString(String redirectUrl) {
-        return "<!DOCTYPE HTML>" + "<html lang=\"en-US\">" + "<head>"
-                + "<meta http-equiv=\"refresh\" content=\"0; url="
-                + redirectUrl + "\" />" + "</head>" + "<body></body>"
-                + "</html>";
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(HtmlTags.defineDocumentTypeTag());
+        stringBuilder.append(HtmlTags.defineHtmlBeginTag());
+        stringBuilder.append(HtmlTags.defineHeadBeginTag());
+        stringBuilder.append(HtmlTags.defineRedirectionMetaTag(redirectUrl));
+        stringBuilder.append(HtmlTags.defineHeadEndTag());
+        stringBuilder.append(HtmlTags.defineBodyBeginTag());
+        stringBuilder.append(HtmlTags.defineBodyBeginTag());
+        stringBuilder.append(HtmlTags.defineHtmlBeginTag());
+        return stringBuilder.toString();
     }
 }
