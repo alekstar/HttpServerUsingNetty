@@ -1,11 +1,12 @@
 package com.alekstar.HttpServerUsingNetty;
 
 import java.net.SocketAddress;
-import java.util.HashSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class RequestCounter {
     private int requestsAmount = 0;
-    private HashSet<String> ips = new HashSet<String>();
+    private SortedSet<String> ips = new TreeSet<String>();
 
     public int getOverallRequestAmount() {
         return this.requestsAmount;
@@ -28,7 +29,7 @@ public class RequestCounter {
         return getIps().size();
     }
 
-    private HashSet<String> getIps() {
+    private SortedSet<String> getIps() {
         return this.ips;
     }
 
