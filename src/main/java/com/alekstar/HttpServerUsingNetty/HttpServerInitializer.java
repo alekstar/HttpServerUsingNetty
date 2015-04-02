@@ -24,8 +24,8 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         ChannelPipeline channelPipeline = socketChannel.pipeline();
-        channelPipeline.addLast(new HttpServerCodec());
-        channelPipeline.addLast(new HttpServerHandler(getRequestCounter(),
-                getRedirectionsCounter()));
+        channelPipeline.addLast("codec", new HttpServerCodec());
+        channelPipeline.addLast("main handler", new HttpServerHandler(
+                getRequestCounter(), getRedirectionsCounter()));
     }
 }
