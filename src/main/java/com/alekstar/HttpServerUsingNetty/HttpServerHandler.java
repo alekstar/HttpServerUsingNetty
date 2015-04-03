@@ -56,9 +56,6 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         proccessContinueRequest(context, request);
         boolean keepAlive = haveHeadersKeepAliveRequest(request);
         FullHttpResponse response = defineResponse(request.getUri());
-        response.headers().set(CONTENT_TYPE, "text/html");
-        response.headers().set(CONTENT_LENGTH,
-                response.content().readableBytes());
 
         if (!keepAlive) {
             context.write(response).addListener(ChannelFutureListener.CLOSE);
@@ -111,7 +108,11 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
     private FullHttpResponse defineResponse(String uri) {
         UriProcessor processor = defineUriProcessor(uri);
         processor.process();
-        return processor.getResponse();
+        FullHttpResponse response = processor.getResponse();
+        response.headers().set(CONTENT_TYPE, "text/html");
+        response.headers().set(CONTENT_LENGTH,
+                response.content().readableBytes());
+        return response;
     }
 
     @Override
