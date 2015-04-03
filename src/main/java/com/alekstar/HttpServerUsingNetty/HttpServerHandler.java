@@ -54,10 +54,9 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         getRequestCounter().processSocketAddress(
                 context.channel().remoteAddress());
         proccessContinueRequest(context, request);
-        boolean keepAlive = haveHeadersKeepAliveRequest(request);
         FullHttpResponse response = defineResponse(request.getUri());
 
-        if (!keepAlive) {
+        if (!haveHeadersKeepAliveRequest(request)) {
             context.write(response).addListener(ChannelFutureListener.CLOSE);
         } else {
             response.headers().set(CONNECTION, Values.KEEP_ALIVE);
