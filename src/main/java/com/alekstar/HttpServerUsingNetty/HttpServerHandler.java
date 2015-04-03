@@ -55,11 +55,11 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         proccessContinueRequest(context, request);
         FullHttpResponse response = defineResponse(request.getUri());
 
-        if (!haveHeadersKeepAliveRequest(request)) {
-            context.write(response).addListener(ChannelFutureListener.CLOSE);
-        } else {
+        if (haveHeadersKeepAliveRequest(request)) {
             response.headers().set(CONNECTION, Values.KEEP_ALIVE);
             context.write(response);
+        } else {
+            context.write(response).addListener(ChannelFutureListener.CLOSE);
         }
     }
 
