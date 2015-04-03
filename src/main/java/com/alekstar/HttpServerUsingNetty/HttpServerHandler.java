@@ -54,7 +54,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         getRequestCounter().processSocketAddress(
                 context.channel().remoteAddress());
         proccessContinueRequest(context, request);
-        boolean keepAlive = HttpHeaders.isKeepAlive(request);
+        boolean keepAlive = haveHeadersKeepAliveRequest(request);
         FullHttpResponse response = defineResponse(request.getUri());
         response.headers().set(CONTENT_TYPE, "text/html");
         response.headers().set(CONTENT_LENGTH,
@@ -66,6 +66,10 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
             response.headers().set(CONNECTION, Values.KEEP_ALIVE);
             context.write(response);
         }
+    }
+
+    private boolean haveHeadersKeepAliveRequest(HttpRequest request) {
+        return HttpHeaders.isKeepAlive(request);
     }
 
     private void proccessContinueRequest(ChannelHandlerContext context,
