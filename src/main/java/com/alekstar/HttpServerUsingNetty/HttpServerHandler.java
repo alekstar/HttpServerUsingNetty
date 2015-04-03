@@ -46,27 +46,27 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext context, Object message) {
-        if (message instanceof HttpRequest) {
+        if (!(message instanceof HttpRequest)) {
+            return;
+        }
 
-            HttpRequest request = (HttpRequest) message;
-            getRequestCounter().processSocketAddress(
-                    context.channel().remoteAddress());
-            if (HttpHeaders.is100ContinueExpected(request)) {
-                context.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
-            }
-            boolean keepAlive = HttpHeaders.isKeepAlive(request);
-            FullHttpResponse response = defineResponse(request.getUri());
-            response.headers().set(CONTENT_TYPE, "text/html");
-            response.headers().set(CONTENT_LENGTH,
-                    response.content().readableBytes());
+        HttpRequest request = (HttpRequest) message;
+        getRequestCounter().processSocketAddress(
+                context.channel().remoteAddress());
+        if (HttpHeaders.is100ContinueExpected(request)) {
+            context.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
+        }
+        boolean keepAlive = HttpHeaders.isKeepAlive(request);
+        FullHttpResponse response = defineResponse(request.getUri());
+        response.headers().set(CONTENT_TYPE, "text/html");
+        response.headers().set(CONTENT_LENGTH,
+                response.content().readableBytes());
 
-            if (!keepAlive) {
-                context.write(response)
-                        .addListener(ChannelFutureListener.CLOSE);
-            } else {
-                response.headers().set(CONNECTION, Values.KEEP_ALIVE);
-                context.write(response);
-            }
+        if (!keepAlive) {
+            context.write(response).addListener(ChannelFutureListener.CLOSE);
+        } else {
+            response.headers().set(CONNECTION, Values.KEEP_ALIVE);
+            context.write(response);
         }
     }
 
