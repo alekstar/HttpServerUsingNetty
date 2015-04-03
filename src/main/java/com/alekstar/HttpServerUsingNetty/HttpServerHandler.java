@@ -51,8 +51,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
         }
 
         HttpRequest request = (HttpRequest) message;
-        getRequestCounter().processSocketAddress(
-                context.channel().remoteAddress());
+        processRequestAtRequestCounter(context);
         proccessContinueRequest(context, request);
         FullHttpResponse response = defineResponse(request.getUri());
 
@@ -62,6 +61,11 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
             response.headers().set(CONNECTION, Values.KEEP_ALIVE);
             context.write(response);
         }
+    }
+
+    private void processRequestAtRequestCounter(ChannelHandlerContext context) {
+        getRequestCounter().processSocketAddress(
+                context.channel().remoteAddress());
     }
 
     private boolean haveHeadersKeepAliveRequest(HttpRequest request) {
